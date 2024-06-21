@@ -1,0 +1,5 @@
+// {
+//   "deno.enablePaths": [
+//     "src/server/index.ts"
+//   ]
+// }
