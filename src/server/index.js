@@ -9,9 +9,10 @@ import { spawn } from 'child_process';
 import { supabase } from './supabase.js';
 import { uploadFile } from './utils/uploadFile.js';
 import os from 'os';
+import config from '../../env.json' assert { type: 'json' };
 
 const app = express();
-const port = 4200;
+const port = +config.SERVER_PORT;
 // Настройка multer для обработки загруженных файлов
 const storage = multer.diskStorage({
   destination: './public/models/tmp',
@@ -25,7 +26,7 @@ const upload = multer({ storage });
 app.use(json());
 app.use(cors());
 
-app.post('/unzip', upload.single('zip'), async (req, res) => {
+app.post('/api/unzip', upload.single('zip'), async (req, res) => {
   try {
     if (req.file) {
       // Текущий путь архива
@@ -91,7 +92,7 @@ app.post('/unzip', upload.single('zip'), async (req, res) => {
   }
 });
 
-app.post('/zip', async (req, res) => {
+app.post('/api/zip', async (req, res) => {
   const zipPath = path.join(__dname, '../..', 'public/models/uploads/');
   const zip = new AdmZip();
 
@@ -150,7 +151,7 @@ app.post('/zip', async (req, res) => {
   }
 });
 
-app.post('/generate-gltf-jsx', async (req, res) => {
+app.post('/api/generate-gltf-jsx', async (req, res) => {
   try {
     const { scene, zip_name, uid } = req.body;
 
@@ -200,7 +201,7 @@ app.post('/generate-gltf-jsx', async (req, res) => {
   }
 });
 
-app.post('/check-path-generated', async (req, res) => {
+app.post('/api/check-path-generated', async (req, res) => {
   try {
     const { post, model } = req.body;
 
@@ -250,7 +251,7 @@ app.post('/check-path-generated', async (req, res) => {
   }
 });
 
-app.get('/clear-cache', (_, res) => {
+app.get('/api/clear-cache', (_, res) => {
   try {
     const clearPath = `./public/models/data`;
     if (fs.existsSync(clearPath)) {
@@ -296,9 +297,9 @@ const uploadMS = multer({
   }),
 });
 
-app.post('/load-gltf-jsx', uploadMS.array('file'));
+app.post('/api/load-gltf-jsx', uploadMS.array('file'));
 
-app.post('/download-zip', async (req, res) => {
+app.post('/api/download-zip', async (req, res) => {
   try {
     const { post } = req.body;
     const { data: blob } = await supabase.storage
